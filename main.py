@@ -1,16 +1,34 @@
-# This is a sample Python script.
+import os
 
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+from PIL import Image, ImageEnhance
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def edit_image(file_path: str, destination: str):
+    img = Image.open(fp=file_path)
+    saturation_filter = ImageEnhance.Color(img)
+    saturated_image = saturation_filter.enhance(1.45)
+    exposure_filter = ImageEnhance.Contrast(saturated_image)
+    exposed_image = exposure_filter.enhance(1.2)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    exposed_image.save(destination)
+
+
+def main():
+    input_directory = os.environ.get('input_directory')
+    output_directory = os.environ.get('output_directory')
+
+    if input_directory is None or output_directory is None:
+        print(f'''
+Missing required environment variables.
+$input_directory is "{input_directory}"
+$output_directory is "{output_directory}"
+''')
+        exit(1)
+
+    for filename in os.listdir(input_directory):
+        if filename.endswith('.jpg') or filename.endswith('.png'):
+            edit_image(os.path.join(input_directory, filename), os.path.join(output_directory, filename))
+
+
+if __name__ == "__main__":
+    main()
